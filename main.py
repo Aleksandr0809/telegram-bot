@@ -4,26 +4,31 @@ import os
 
 app = FastAPI()
 
+# Токен из Render Environment Variables
 TOKEN = os.getenv("BOT_TOKEN")
-URL = f"https://api.telegram.org/bot{TOKEN}"
 
 @app.get("/")
 def home():
     return {"status": "bot working"}
 
 @app.post("/webhook")
-async def webhook(req: Request):
+async def telegram_webhook(req: Request):
     data = await req.json()
 
     if "message" in data:
         chat_id = data["message"]["chat"]["id"]
         text = data["message"].get("text", "")
 
-        reply = f"🤖 AI сигнал: пока тест. Ты написал: {text}"
+        # Ответ бота
+        reply = f"AI bot: {text}"
 
-        requests.post(f"{URL}/sendMessage", json={
-            "chat_id": chat_id,
-            "text": reply
-        })
+        # Отправка ответа в Telegram
+        requests.post(
+            f"https://api.telegram.org/bot{TOKEN}/sendMessage",
+            json={
+                "chat_id": chat_id,
+                "text": reply
+            }
+        )
 
     return {"ok": True}
