@@ -1,29 +1,17 @@
-from fastapi import FastAPI, Request
-import requests
-import os
-
-app = FastAPI()
-
-TOKEN = os.getenv("BOT_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
-
-@app.get("/")
-def home():
-    return {"status": "bot working"}
-
 @app.post("/")
 async def webhook(req: Request):
     data = await req.json()
 
-    # получаем текст из Telegram
     message = data.get("message", {})
     text = message.get("text", "Без текста")
 
-    # отправка в Telegram
+    # ВАЖНО: берём chat_id из Telegram
+    chat_id = message.get("chat", {}).get("id")
+
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     requests.post(url, json={
-        "chat_id": CHAT_ID,
-        "text": f"📩 Сигнал:\n{text}"
+        "chat_id": chat_id,
+        "text": f"🤖 Ответ бота:\n{text}"
     })
 
     return {"ok": True}
