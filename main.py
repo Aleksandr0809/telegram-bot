@@ -14,12 +14,16 @@ def home():
 @app.post("/")
 async def webhook(req: Request):
     data = await req.json()
-    text = data.get("text", "Signal received")
 
+    # получаем текст из Telegram
+    message = data.get("message", {})
+    text = message.get("text", "Без текста")
+
+    # отправка в Telegram
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     requests.post(url, json={
         "chat_id": CHAT_ID,
-        "text": f"📡 Сигнал:\n{text}"
+        "text": f"📩 Сигнал:\n{text}"
     })
 
     return {"ok": True}
